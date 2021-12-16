@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+source python/bin/activate
+flask run
