@@ -5,8 +5,8 @@
 from flask import jsonify, request, abort
 from flask.views import MethodView
 import jwt
-import datetime
 from flask import current_app as app
+import datetime
 from app.config.constant.httpd import *
 from app.server.helpers.auth import auth, token
 from app.server.data import ma, db
@@ -70,7 +70,7 @@ class Api(MethodView):
         return jsonify({'Results' : self.Results.dump(paginate.items),
         'Total-Pages' : paginate.pages}), HTTP_200_OK
 
-    @classmethod
+    
     def post(self):
         """ Method HTTP POST
         
@@ -84,7 +84,7 @@ class Api(MethodView):
             return self.login()
         return self.add()
 
-    @classmethod
+    
     def login(self):
         """ Created and New Session and execute POST Request
         
@@ -92,7 +92,8 @@ class Api(MethodView):
         argument -- Return AUTH JSON
         Return: token(jwt) : Object -> JSON Object
         """
-        auth = request.json()
+        auth = request.json
+        print(auth)
         field_name = self.custom_login.get(
             'field_search',
             "email"
@@ -116,8 +117,8 @@ class Api(MethodView):
             token = jwt.encode({
                 'id' : user.id,
                 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-            }, self.custom_login.get('key_encript', app.config['SECRET_KEY']))
-            action = self.custom_login.get('post_action', False)
+            }, self.login.get('key_encript', app.config['SECRET_KEY']))
+            action = self.login.get('post_action', False)
 
             if action:
                 exec(f'action[0]({action[1]})')

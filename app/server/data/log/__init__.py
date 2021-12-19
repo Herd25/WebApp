@@ -10,6 +10,5 @@ class Login(ma.Schema):
     Keyword arguments: ma.Schema
     argument -- Object ma Marshmallow Schema 
     Return: object ->  email and password ''' 
-    def __init__(self):
-        self.email = ma.Email(required = True)
-        self.password = ma.Str(validate = validate.Length(min=8), required = True)
+    email = ma.Email(required = True)
+    password = ma.Str(validate = validate.Length(min=8), required = True)

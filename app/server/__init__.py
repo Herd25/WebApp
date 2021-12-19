@@ -5,7 +5,7 @@
 from flask import Flask
 from app.config.constant.httpd import *
 
-def server(config : object, *args):
+def server(config : object, *bluep):
     """ Create Server Application
     
     Keyword arguments:
@@ -16,7 +16,7 @@ def server(config : object, *args):
     app = Flask(__name__)
     app.config.from_object(config)
     error_handlers(app)
-    blueprints(app)
+    blueprints(app, *bluep)
     extensions(app)
     
     return app
@@ -47,14 +47,14 @@ def error_handlers(app : Flask):
     def not_unauthorized(err):
         return jsonify({'Authenticated' : 'Could not Verify!'}), HTTP_401_UNAUTHORIZED
 
-def blueprints(app : Flask, *bluep):
+def blueprints(app: Flask, *args):
     """ Register application Blueprint
     
     Keyword arguments: (app, blueprints)
     argument -- Register flask master application and blueprints form app
     Return: object -> Url create from api server
     """
-    for blueprint in bluep:
+    for blueprint in args:
         app.register_blueprint(blueprint)
 
 def extensions(app : Flask):

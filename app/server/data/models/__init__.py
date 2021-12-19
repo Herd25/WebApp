@@ -2,6 +2,7 @@
 #-*- coding: utf-8 -*-
 
 # Global Imports
+from flask import abort
 from app.server.data.static import db, ma, Base
 from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import validate
@@ -28,13 +29,17 @@ class Table(db.Model, Base):
         self.password = self.__generate_password(fields.get('password'))
         self.email = fields.get('email')
         self.all_perm = fields.get('all_perm')
-        print(current_user)
 
-    @classmethod
-    def delete(self, current_user):
+    @staticmethod
+    def get_id(table : object, id : int, current_user : object):
         if current_user.all_perm:
-            return super().delete()
-        return False
+            return db.session.query(table).get_or_404(id)
+        return abort(404)
+
+    @staticmethod
+    def all(table : object, current_user : object):
+        if current_user.all_perm:
+            return db.session.query(table).all()
 
     @staticmethod
     def __generate_password(passwd: str) -> str:
@@ -53,10 +58,9 @@ class Schema(ma.Schema):
     name = ma.Str(validate = validate.Length(min=1), required = True)
     email = ma.Email(required = True)
     password = ma.Str(validate = validate.Length(min=4), load_only = True, required = True)
-    all_perm = ma.Bool(load_only = True, required = False)
     
     class Meta:
-        fields = ('id', 'name', 'email', 'password', 'all_perm')
+        fields = ('id', 'name', 'email', 'password')
 
 # * Class notes Model
 class Notes(db.Model, Base):
@@ -79,14 +83,20 @@ class Notes(db.Model, Base):
         self.content = fields.get('content')
         self.id_user = current_user.id
 
-    @classmethod
-    def delete(self, current_user):
-        if current_user.id == self.id_user:
-            return super().delete()
-        return False
+    @staticmethod
+    def get_id(table : object, id : int, current_user : object):
+        note = db.session.query(table).filter(table.id == id).filter(table.id_user == current_user.id).first()
+        if note:
+            return note
+        return abort(404)
+
+    @staticmethod
+    def all(table : object, current_user : object):
+        return db.session.query(table).filter_by(id_user = current_user.id).all()
 
 class NoteSchema(ma.Schema):
     name = ma.Str(validate = validate.Length(min=1), required = True)
     content = ma.Str(validate = validate.Length(min=1), required = True)
+
     class Meta:
         fields = ('id', 'name', 'content')

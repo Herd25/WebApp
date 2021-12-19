@@ -12,13 +12,12 @@ def url_routes(**kwargs):
     Return: Objects -> Return url Endpoints
     """
     
-    custom_login = kwargs.get('custom_login', {})
+    login = kwargs.get('login', {})
 
     view = Api.as_view(
         f"{kwargs.get('noun')}_api",
         kwargs.get('table'),
-        kwargs.get('schema'),
-        custom_login
+        kwargs.get('schema')
     )
 
     endpoints = kwargs.get(
