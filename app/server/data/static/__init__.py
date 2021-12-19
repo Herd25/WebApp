@@ -15,7 +15,6 @@ class Base(object):
     argument -- normal functions in database 
     Return: object -> return status from database ''' 
 
-    @classmethod
     def save(self) -> bool:
         db.session.add(self)
 
@@ -34,7 +33,6 @@ class Base(object):
     def all(table, *args):
         return db.session.query(table).all()
 
-    @classmethod
     def delete(self, *args) -> bool:
         db.session.delete(self)
 

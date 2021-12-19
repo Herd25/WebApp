@@ -23,7 +23,6 @@ class Table(db.Model, Base):
     def __init__(self, fields: dict, current_user: object = None):
         self.changes(fields, current_user)
 
-    @classmethod
     def changes(self, fields: dict, current_user: object):
         self.name = fields.get('name')
         self.password = self.__generate_password(fields.get('password'))
@@ -45,7 +44,6 @@ class Table(db.Model, Base):
     def __generate_password(passwd: str) -> str:
         return generate_password_hash(passwd)
 
-    @classmethod
     def compare_password(self, passwd: str) -> bool:
         return check_password_hash(self.password, passwd)
 
@@ -77,7 +75,6 @@ class Notes(db.Model, Base):
     def __init__(self, fields: dict, current_user: object):
         self.changes(fields, current_user)
 
-    @classmethod
     def changes(self, fields: dict, current_user: object):
         self.name = fields.get('name')
         self.content = fields.get('content')

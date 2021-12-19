@@ -27,7 +27,6 @@ class Api(MethodView):
         self.put = auth(self.result)(self.put)
         self.add = auth(self.result)(self.add)
 
-    @classmethod
     @token()
     def get(self, current_user : object, id : int = None):
         """ Method HTTP GET
@@ -54,17 +53,14 @@ class Api(MethodView):
             return self.pagination(page, per_page, current_user)
         return self.get_all(current_user)
 
-    @classmethod
     def get_id(self, current_user : object, id : int ):
         registry = self.Table.get_by_id(self.Table, id, current_user)
         return self.result.jsonify(registry)
 
-    @classmethod
     def get_all(self, current_user : object):
         list = self.Table.all(self.Table, current_user)
         return jsonify({'Results' : self.Results.dump(list)}), HTTP_200_OK
 
-    @classmethod
     def pagination(self, page : int, per_page : int, current_user : object):
         paginate = self.Table.paginate(self.Table, page, per_page, current_user)
         return jsonify({'Results' : self.Results.dump(paginate.items),
@@ -83,8 +79,7 @@ class Api(MethodView):
         if rute.find('login') != -1:
             return self.login()
         return self.add()
-
-    
+  
     def login(self):
         """ Created and New Session and execute POST Request
         
@@ -93,7 +88,7 @@ class Api(MethodView):
         Return: token(jwt) : Object -> JSON Object
         """
         auth = request.json
-        print(auth)
+
         field_name = self.custom_login.get(
             'field_search',
             "email"
@@ -125,8 +120,6 @@ class Api(MethodView):
             return jsonify({'Token' : token.decode('UTF-8')}), HTTP_201_CREATED
         abort(401)
         
-
-    @classmethod
     @token()
     def add(self, current_user : object):
         """ Add New Record!
@@ -142,7 +135,6 @@ class Api(MethodView):
             return self.database_err()
         return self.result.jsonify(new), HTTP_201_CREATED
 
-    @classmethod
     @token()
     def put(self, current_user : object, id : int):
         """ Edit Record in Database
@@ -159,7 +151,6 @@ class Api(MethodView):
             return self.database_err("update")
         return self.result.jsonify(update), HTTP_202_ACCEPTED
 
-    @classmethod
     @token()
     def delete(self, current_user: object, id : int):
         """ Delete Records 
