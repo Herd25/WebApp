@@ -5,39 +5,57 @@
 
 from flask import current_app as app
 from flask import jsonify, request
-from jwt import jwt
+import jwt
 from functools import wraps
-from app.server.data import TableExample
 from marshmallow import ValidationError
+from app.server.data import ma
+from app.config.constant.httpd import HTTP_401_UNAUTHORIZED
 
 """Decorator from auth
 
 Keyword arguments: schema, current_user, token
 argument -- token validation form api server
-Return: objetc -> return token from api
+Return: object -> return token from api
 """
 
-def token(fn):
-    @wraps(fn)
-    def wrapper(*args, **kwargs):
-        token = None
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
+def token(**params):
+    """ Validate jwt Token
+    
+    Keyword arguments: Arbitrary keywords arguments
+    argument -- Register user Lookup Table Default to app config
+    Return: key -> key jwt token generate from app.config['SECRET_KEY']
+    """
+    def inner(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
 
-        if not token:
-            return jsonify({'Message' : 'Token is Missing!'}), 401
+            token : str = request.headers.get('x-access-token', None)
 
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'])
-            current_user = Table.query.filter_by(id=data['id']).first()
-        except jwt.ExpiredSignature:
-            return jsonify({'Message' : 'Token is invalid!'}), 401
+            if not token:
+                return jsonify({'Message' : '?.. Token is Missign!!'}), HTTP_401_UNAUTHORIZED
 
-        return fn(*args, current_user, **kwargs)
+            table = params.get('table', app.config['TABLE_VALIDATE_TOKEN'])
+            key = params.get('key', app.config['SECRET_KEY'])
 
-    return wrapper
+            try:
+                data = jwt.decode(token, key)
+                current_user = table.query.filter_by(id=data['id']).first()
+            except (jwt.ExpiredSignature, jwt.InvalidSignatureError, jwt.DecodeError):
+                return jsonify({'Message' : 'Token is invalid!'}), HTTP_401_UNAUTHORIZED
 
-def validate(schema: object):
+            return fn(*args, current_user, **kwargs)
+
+        return wrapper
+    return inner
+
+def auth(schema: ma.Schema):
+    """ Validate JSON send
+    
+    Keyword arguments: ma.Schema : Marshmallow schema from validate JSON
+    argument -- Marshmallow schema from validate JSON
+    Return: object -> return JSON for auth Users
+    """
+    
     def inner(f):
         @wraps(f)
         def wrapper(*args, **kwargs):

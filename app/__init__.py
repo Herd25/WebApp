@@ -8,16 +8,12 @@ argument -- description
 Return: object -> web server starting
 """
 
+from .server import server
+from .config import Dev
+from .server.helpers.web.routes import users, notes
 
-from app.server import create_app as server
-from app.server.data import db, ma, create_db
+app = server(Dev, users, notes)
 
-app = server()
 
 if __name__ == '__main__':
-    db.init_app(app)
-    ma.init_app(app)
-    with app.app_context():
-        create_db()
-        db.create_all()
-    app.run('0.0.0.0')
+    app.run()

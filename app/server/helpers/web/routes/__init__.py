@@ -3,13 +3,14 @@
 
 """Exmaples Routes
 
-Keyword arguments:
-argument -- description
-Return: return_description
+Keyword arguments: (blueprint_name)
+argument -- creation blueprint for web server
+Return: boolean -> views for app
 """
 
 # Global Imports
 from flask import Blueprint
 
-example = Blueprint('example', __name__)
+users = Blueprint('users', __name__)
+notes = Blueprint('notes', __name__)
 

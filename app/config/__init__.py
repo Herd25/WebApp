@@ -10,18 +10,20 @@ Return: return_description
  # Global Imports
 
 from app.config.constant.vars import *
+import os
 
 class Init(object):
   DEBUG = DEB
   TESTING = TEST
-  APP_ROOT = PATH
-  SECRET_KEY = KEY
-  DB_NAME = DB
-  SQLALCHEMY_TRACK_MODIFICATIONS = MODIFICATONS
 
 
 class Dev(Init):
+  APP_ROOT = os.path.dirname(os.path.abspath(__file__))
   DEGUB = True
+  SECRET_KEY = os.urandom(16)
+  DB_NAME = "database"
   TESTING = True
-  SQLALCHEMY_DATABASE_URI = ROUTE
+  EGINE_URI = 'sqlite:///' + os.path.join(APP_ROOT, DB_NAME + '.db')
+  SQLALCHEMY_DATABASE_URI = f'{EGINE_URI}'
+  SQLALCHEMY_TRACK_MODIFICATIONS = False
 
